@@ -132,8 +132,8 @@ B1:['#053c4d','#0b7391','#2fb5d9','#78d2ea','#bfeaf6'],B2:['#06413a','#0e7a6c','
 const pal=id=>{const h=HUE[id];return{0:h[0],1:h[1],2:h[2],3:h[3],4:h[4],k:'#17130f',far:`color-mix(in srgb,#17130f 58%,${h[2]})`,hl:'#ff2e63'}};
 const ORDER=['A1','A2','A3','B1','B2','B3'],CYCLE=['A1','A2','A3','R','B1','B2','B3','R'];
 const key=n=>n.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-// warm-up (first exercise of a muscle only) → 1 working set → 2 sets to failure, same weight
-const setsFor=w=>[...(w&&w!==F?['warm']:[]),'work','fail','fail'];
+// warm-up (first exercise of a muscle only) → 2 working sets → 2 sets to failure, same weight
+const setsFor=w=>[...(w&&w!==F?['warm']:[]),'work','work','fail','fail'];
 const LBL={warm:'WARM',work:'SET',fail:'FAIL'},TGT={warm:'15',work:'10–12',fail:'max'};
 const exList=id=>DAYS[id].g.flatMap(([grp,xs])=>xs.map(([n,w])=>({grp,n,k:key(n),bw:w===F,sets:setsFor(w)})));
 function setTheme(id){const h=HUE[id],r=document.documentElement.style;['t0','t1','t2','t3','t4'].forEach((v,i)=>r.setProperty('--'+v,h[i]))}
@@ -271,7 +271,7 @@ function exCard(x,e,i,N,id){
   <div style="padding-top:44px;background:var(--t2)">${photo(x.n)}</div><div class="body"><div class="title" id="xt">${esc(x.n)}</div><div class="ar">${AR[x.n]||''}</div>
   ${HOW[x.n]?`<details class="how"><summary>How to do it</summary><ol>${HOW[x.n].map(t=>`<li>${esc(t)}</li>`).join('')}</ol></details>`:''}
   <div class="last">${esc(last)}</div>${hint?`<div class="hint">${hint}</div>`:''}
-  <div class="mono" style="color:var(--t0);margin-top:8px">${x.sets.includes('warm')?'Warm-up · ':''}1 set 10–12 reps · 2 sets to failure · same weight</div>
+  <div class="mono" style="color:var(--t0);margin-top:8px">${x.sets.includes('warm')?'Warm-up · ':''}2 sets 10–12 reps · 2 sets to failure · same weight</div>
   ${setBlock(e,fail)}</div></div>`;
 }
 function curSet(e){if(e.cur!=null&&e.sets[e.cur])return e.cur;const j=e.sets.findIndex(s=>!s.done);return j<0?e.sets.length-1:j}
