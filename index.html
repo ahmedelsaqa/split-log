@@ -363,6 +363,10 @@ async function wake(){try{lock=await navigator.wakeLock?.request('screen')}catch
 function releaseWake(){lock?.release();lock=null}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){if(S.active)wake();if(T.end&&$('#timer').classList.contains('on'))tick()}});
 
+// a workout started under an older set scheme gets rebuilt to the current one (keeps finished sets that still fit)
+if(S.active&&DAYS[S.active.day]){for(const x of exList(S.active.day)){const e=S.active.ex[x.k];if(e&&e.sets.map(q=>q.t).join()===x.sets.join())continue;
+  const old=e?e.sets:[],ws=old.filter(q=>q.t!=='warm'&&num(q.w)!=='').map(q=>+q.w),w=ws.length?Math.max(...ws):num(S.work[x.k]);
+  S.active.ex[x.k]={sets:x.sets.map((t,i)=>old[i]&&old[i].t===t?old[i]:{t,w:t==='warm'?'':w,r:'',done:false})}}save()}
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
 S.active?workout():home();
 </script>
