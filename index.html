@@ -52,7 +52,7 @@ h1.d{font-size:34px;margin:4px 0 2px}h2.sec{margin:26px 2px 8px}
 .chev{font-size:22px;color:var(--iron)}
 .xrow{display:grid;grid-template-columns:96px 1fr;gap:12px;padding:10px;align-items:center}
 .xrow .ph{border-radius:10px;aspect-ratio:4/3}.xrow .ar{font-size:13px}
-.s.alt{margin-top:3px}.s.alt b{color:var(--ink);font-weight:600}
+.swapb{margin-top:6px;padding:6px 10px;font-size:13px;text-align:left}
 .dock{position:fixed;left:0;right:0;bottom:0;padding:12px 14px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(transparent,var(--steel) 30%)}
 .dock .btn{max-width:492px;margin:0 auto}
 /* workout */
@@ -152,7 +152,7 @@ function collectAnims(){}
 // ---------- Store ----------
 const SK='splitlog.v1';
 let S=(()=>{try{return JSON.parse(localStorage.getItem(SK))||{}}catch(e){return{}}})();
-S.work??={};S.history??=[];S.active??=null;S.settings={rest:90,warm:60,round:2.5,cardio:10,...(S.settings||{})};
+S.work??={};S.pref??={};S.history??=[];S.active??=null;S.settings={rest:90,warm:60,round:2.5,cardio:10,...(S.settings||{})};
 const save=()=>localStorage.setItem(SK,JSON.stringify(S));
 const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
 const dBetween=(a,b)=>Math.round((new Date(b+'T12:00')-new Date(a+'T12:00'))/864e5);
@@ -178,7 +178,7 @@ const lastDate=d=>{for(let i=S.history.length-1;i>=0;i--)if(S.history[i].day===d
 const scheme=x=>(x.bw?'Bodyweight · ':x.sets.includes('warm')?'Warm-up + ':'')+'2 sets + 2 to failure';
 function home(){
   if(S.active)return resumeCard();
-  const n=nextUp(),pos=cyclePos(n),id=n.id,D=DAYS[id],xs=exList(id);
+  const n=nextUp(),pos=cyclePos(n),id=n.id,D=DAYS[id],xs=exList(id,S.pref);
   app.innerHTML=`
   <header class="top"><div><div class="d brand">Split Log</div><div class="lbl">${fmtD(today())}</div></div><div class="lbl">Day ${pos+1} of 8</div></header>
   <div class="cycle" aria-label="8-day cycle">${CYCLE.map((c,i)=>`<i class="${i<pos?'past':''} ${i===pos?'now':''} ${c==='R'?'rest':''}">${c==='R'?'Rest':c}</i>`).join('')}</div>
@@ -204,12 +204,12 @@ function home(){
 }
 // day preview: every exercise of a day, before starting it
 function dayView(id){
-  const D=DAYS[id],xs=exList(id),groups=[...new Set(xs.map(x=>x.grp))];
+  const D=DAYS[id],xs=exList(id,S.pref),groups=[...new Set(xs.map(x=>x.grp))];
   app.innerHTML=`<header class="top"><button class="back" data-a="home" aria-label="Back">‹</button><div class="lbl">${id} · Workout ${id[0]}</div><span style="width:44px"></span></header>
   <h1 class="d">${D.t}</h1><div class="ar">${D.ar}</div>
   <div class="meta">${xs.length} exercises · about ${mins(xs)} min · starts with ${S.settings.cardio} min cardio</div>
   ${groups.map(g=>`<h2 class="lbl sec">${g}</h2><div class="card list">${xs.filter(x=>x.grp===g).map(x=>{const L=lastFor(x.k),best=L&&L.e.sets.filter(q=>q.done&&q.t!=='warm').map(q=>`${q.w||'BW'}×${q.r||'?'}`)[0];
-    return`<div class="xrow">${photo(x.n,false)}<div><span class="t">${esc(x.n)}</span><div class="ar">${AR[x.n]||''}</div><span class="s">${scheme(x)}${best?' · last '+best:''}</span>${ALT[x.n0]?`<span class="s alt">Swap option: <b>${esc(ALT[x.n0])}</b></span>`:''}</div></div>`}).join('')}</div>`).join('')}
+    return`<div class="xrow">${photo(x.n,false)}<div><span class="t">${esc(x.n)}</span><div class="ar">${AR[x.n]||''}</div><span class="s">${scheme(x)}${best?' · last '+best:''}</span>${ALT[x.n0]?`<button class="sm swapb" data-a="dswap" data-n="${esc(x.n0)}" data-id="${id}">${x.n!==x.n0?`⇄ Switch back to ${esc(x.n0)}`:`⇄ Swap to ${esc(ALT[x.n0])}`}</button>`:''}</div></div>`}).join('')}</div>`).join('')}
   <div class="dock"><button class="btn" data-a="start" data-id="${id}">Start ${id}</button></div>`;
 }
 function resumeCard(){
@@ -232,8 +232,8 @@ function mkEx(x){const W=num(S.work[x.k]),L=lastFor(x.k),lw=L&&L.e.sets.find(q=>
   return{sets:x.sets.map(t=>({t,w:t==='warm'?(lw?lw.w:''):W,r:'',done:false}))}}
 function start(id){
   if(S.active&&!confirm('Discard the workout in progress?'))return;
-  const a={day:id,date:today(),start:Date.now(),cardio:false,cur:0,ex:{}};
-  for(const x of exList(id))a.ex[x.k]=mkEx(x);
+  const a={day:id,date:today(),start:Date.now(),cardio:false,cur:0,ex:{},sw:{...S.pref}};
+  for(const x of exList(id,a.sw))a.ex[x.k]=mkEx(x);
   S.active=a;save();workout();
 }
 function workout(){
@@ -282,6 +282,7 @@ function finish(){
   if(!confirm('Finish and save this workout?'))return;
   a.end=Date.now();a.id=a.start;
   for(const[k,e]of Object.entries(a.ex)){const hv=e.sets.filter(s=>s.t!=='warm'&&s.done&&num(s.w)!=='');if(hv.length)S.work[k]=Math.max(...hv.map(s=>+s.w))}
+  for(const x of exList(a.day,a.sw))if(ALT[x.n0]&&a.ex[x.k]&&a.ex[x.k].sets.some(q=>q.done)){if(a.sw[x.n0])S.pref[x.n0]=true;else delete S.pref[x.n0]}
   S.history.push(a);S.active=null;save();stopTimer();releaseWake();
   const vol=n.reduce((t,s)=>t+(+s.w||0)*(+s.r||0),0),min=Math.round((a.end-a.start)/6e4),xs=exList(a.day,a.sw),full=xs.filter(x=>a.ex[x.k].sets.every(s=>s.done)).length;
   app.innerHTML=`<header class="top"><div class="d brand">Split Log</div><div class="lbl">Workout saved</div></header>
@@ -300,6 +301,7 @@ app.addEventListener('click',ev=>{
   const go=i=>{a.cur=i;save();workout();window.scrollTo(0,0)};
   if(A==='start'){start(b.dataset.id);window.scrollTo(0,0);wake()}
   else if(A==='day'){dayView(b.dataset.id);window.scrollTo(0,0)}
+  else if(A==='dswap'){const n0=b.dataset.n;if(S.pref[n0])delete S.pref[n0];else S.pref[n0]=true;save();const y=scrollY;dayView(b.dataset.id);scrollTo(0,y)}
   else if(A==='resume'){workout();wake()}
   else if(A==='discard'){if(confirm('Discard workout in progress?')){S.active=null;save();home()}}
   else if(A==='home'){home();window.scrollTo(0,0)}
