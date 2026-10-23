@@ -331,7 +331,7 @@ app.addEventListener('click',ev=>{
   else if(A==='home'){home();window.scrollTo(0,0)}
   else if(A==='finish')finish();
   else if(A==='next')go(a.cur+1);else if(A==='prev')go(a.cur-1);else if(A==='go')go(+b.dataset.i);
-  else if(A==='cardio'){a.cardio=!a.cardio;save();workout()}
+  else if(A==='cardio'){a.cardio=!a.cardio;if(a.cardio){stopTimer();a.cur=1;window.scrollTo(0,0)}save();workout()}
   else if(A==='cardioT')document.activeElement?.blur(),startTimer(S.settings.cardio*60,'Cardio warm-up');
   else if(A==='del'){if(confirm('Delete this workout from history?')){S.history=S.history.filter(h=>String(h.id)!==b.dataset.id);save();home()}}
   else if(A==='export'){const u=URL.createObjectURL(new Blob([JSON.stringify(S,null,1)],{type:'application/json'}));const l=document.createElement('a');l.href=u;l.download='splitlog-'+today()+'.json';l.click()}
