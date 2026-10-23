@@ -105,6 +105,9 @@ input:focus{outline:none;border-color:var(--ink)}
 .opt .ph{border-radius:10px;aspect-ratio:4/3}.opt .ar{font-size:13px}
 .opt.on{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}.opt .ck{font:800 22px 'Barlow Condensed';background:var(--pin);border-radius:50%;width:26px;height:26px;display:grid;place-items:center}
 .opt:disabled{opacity:.45}
+.mot{font:900 28px/1.35 Cairo,sans-serif;text-align:center;color:var(--pin);margin-bottom:14px}
+.mot.hype{color:var(--fail);font-size:24px;margin:2px 0 0}.sum .mot{color:var(--ink);font-size:22px}#timer.ring .mot{color:var(--ink)}
+.tog{display:flex;align-items:center;gap:10px;padding:4px 16px 14px;font-weight:600}.tog input{width:22px;height:22px;accent-color:var(--ink)}
 /* history, settings, summary */
 .hist summary{list-style:none;display:grid;grid-template-columns:52px 1fr;gap:10px;align-items:center;padding:12px 14px;cursor:pointer}
 .hist summary .code{font-size:24px}.hist table{width:calc(100% - 28px);margin:0 14px 10px;font-size:13px;border-collapse:collapse}.hist td{padding:5px 0;border-top:1px solid var(--rule)}.hist td+td{text-align:right;font-weight:600}
@@ -120,7 +123,7 @@ input:focus{outline:none;border-color:var(--ink)}
 </head>
 <body>
 <div id="app"></div>
-<div id="timer"><div class="in"><div class="lbl" id="tlab">Rest</div><div class="tv" id="tval">0:00</div><div class="bar"><i id="tbar"></i></div>
+<div id="timer"><div class="in"><div class="mot ar" id="tmot"></div><div class="lbl" id="tlab">Rest</div><div class="tv" id="tval">0:00</div><div class="bar"><i id="tbar"></i></div>
 <div class="tb"><button data-t="-15">−15 s</button><button data-t="15">+15 s</button></div><button class="btn" data-t="x">Skip rest</button></div></div>
 <script>window.onerror=(m,u,l)=>{const d=document.createElement('div');d.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:99;background:#c00;color:#fff;padding:10px;font:12px monospace';d.textContent='Error: '+m+' (line '+l+')';document.body.append(d)}</script>
 <script>
@@ -211,6 +214,7 @@ function home(){
     <label>Rest after warm-up (sec)<input type="number" inputmode="numeric" data-s="warm" value="${S.settings.warm}"></label>
     <label>Cardio warm-up (min)<input type="number" inputmode="numeric" data-s="cardio" value="${S.settings.cardio}"></label>
     <label>Weight step (kg)<input type="number" inputmode="decimal" data-s="round" value="${S.settings.round}"></label></div>
+   <label class="tog"><input type="checkbox" data-a="motiv" ${S.settings.motiv===false?'':'checked'}> Motivation messages</label>
    <div class="row2" style="padding:0 16px 16px"><button class="sm" data-a="export">Export backup</button><button class="sm" data-a="import">Import backup</button></div>
   </details>`;
 }
@@ -292,6 +296,7 @@ function setBlock(e,bw){
   <div class="one" data-i="${j}">
    <div class="lrow"><span class="lbl">Weight<br>kg</span><button class="step" data-a="sw" data-d="-1" aria-label="Less weight">−</button><input type="number" inputmode="decimal" data-f="w" value="${s.w}" placeholder="${bw?'BW':'kg'}"><button class="step" data-a="sw" data-d="1" aria-label="More weight">+</button></div>
    <div class="lrow"><span class="lbl">Reps</span><button class="step" data-a="sr" data-d="-1" aria-label="Fewer reps">−</button><input type="number" inputmode="numeric" data-f="r" value="${s.r}" placeholder="${TGT[s.t]}"><button class="step" data-a="sr" data-d="1" aria-label="More reps">+</button></div>
+   ${s.t==='fail'&&!s.done&&S.settings.motiv!==false?`<div class="mot ar hype">${esc(motFor(today()+S.active.cur+'-'+j))}</div>`:''}
    <button class="btn" data-a="set">${s.done?'Undo this set':`Log ${LBL[s.t].toLowerCase()} · rest ${rest}s`}</button>
    ${all?'<button class="btn ghost" data-a="next">Exercise done · next ›</button>':''}
   </div>`;
@@ -306,7 +311,7 @@ function finish(){
   S.history.push(a);S.active=null;save();stopTimer();releaseWake();
   const vol=n.reduce((t,s)=>t+(+s.w||0)*(+s.r||0),0),min=Math.round((a.end-a.start)/6e4),xs=exList(a.day,a.sw),full=xs.filter(x=>a.ex[x.k].sets.every(s=>s.done)).length;
   app.innerHTML=`<header class="top"><div class="d brand">Split Log</div><div class="lbl">Workout saved</div></header>
-  <section class="card pad sum"><div class="lbl">${a.day} · ${DAYS[a.day].t}</div><div class="d big" id="vol">0</div><div class="lbl">kg lifted</div>
+  <section class="card pad sum"><div class="lbl">${a.day} · ${DAYS[a.day].t}</div><div class="d big" id="vol">0</div><div class="lbl">kg lifted</div>${S.settings.motiv===false?'':`<div class="mot ar" style="margin-top:12px">${esc(mot())}</div>`}
    <div class="stats"><div><b class="d">${n.length}</b><span class="lbl">sets</span></div><div><b class="d">${full}/${xs.length}</b><span class="lbl">exercises</span></div><div><b class="d">${min}</b><span class="lbl">minutes</span></div></div>
    <button class="btn" data-a="home">Done</button></section>`;
   const st=performance.now();(function up(t){const k=Math.min(1,(t-st)/900);$('#vol')&&($('#vol').textContent=Math.round(vol*(1-Math.pow(1-k,3))).toLocaleString());if(k<1)requestAnimationFrame(up)})(st);
@@ -320,6 +325,7 @@ app.addEventListener('click',ev=>{
   const A=b.dataset.a,card=b.closest('.ex'),a=S.active;
   const go=i=>{a.cur=i;save();workout();window.scrollTo(0,0)};
   if(A==='start'){start(b.dataset.id);window.scrollTo(0,0);wake()}
+  else if(A==='motiv'){S.settings.motiv=b.checked;save()}
   else if(A==='day'){dayView(b.dataset.id);window.scrollTo(0,0)}
   else if(A==='opts')showOpts(b.dataset.n0,b.dataset.ctx,b.dataset.id);
   else if(A==='closeopts')$('#sheet').remove();
@@ -342,7 +348,7 @@ app.addEventListener('click',ev=>{
   else if(A==='set'){const e=a.ex[card.dataset.k],j=curSet(e),s=e.sets[j];
     s.done=!s.done;if(s.done&&s.r==='')s.r=s.t==='warm'?15:s.r;
     if(s.done){const nx=e.sets.findIndex(q=>!q.done);e.cur=nx<0?j:nx}else e.cur=j;save();
-    if(s.done){document.activeElement?.blur();navigator.vibrate?.(30);const all=e.sets.every(q=>q.done);startTimer(s.t==='warm'?+S.settings.warm:+S.settings.rest,all?'Exercise done · rest, then next':'Rest · next: set '+(e.cur+1))}
+    if(s.done){document.activeElement?.blur();navigator.vibrate?.(30);const all=e.sets.every(q=>q.done);startTimer(s.t==='warm'?+S.settings.warm:+S.settings.rest,all?'Exercise done · rest, then next':'Rest · next: set '+(e.cur+1),s.t==='fail'?mot():'')}
     workout()}
 });
 app.addEventListener('input',ev=>{
@@ -358,11 +364,16 @@ function carry(e,s){if(s.t==='warm')return;const i=e.sets.indexOf(s);e.sets.forE
 let sx=null,sy=0;app.addEventListener('touchstart',e=>{if(!S.active||e.target.closest('input,button'))return sx=null;sx=e.touches[0].clientX;sy=e.touches[0].clientY},{passive:true});
 app.addEventListener('touchend',e=>{if(sx==null||!S.active)return;const dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*1.5){const N=exList(S.active.day,S.active.sw).length+1,i=S.active.cur+(dx<0?1:-1);if(i>=0&&i<N){S.active.cur=i;save();workout();window.scrollTo(0,0)}}sx=null});
 
+// motivation lines: shown on failure sets (before + rest after) and the finish screen; Settings can turn them off
+const MOT=["عاش ياعم محمود", "الله ينوَّر يا حوكااااااااااا", "دوس يا برنسسسس!", "أم عفان هتفشخك لو مبقتش قوي", "لو طلعلك فار دلوقتي هيخاف منك ياصاحبي", "عاش يا صاحبي", "دوس يا صاحبي", "اللهم صلي عالنبي", "دغدغ الحديد ياعم محمود", "عاش يا وحش", "كمّل يا صاحبي", "شد حيلك يا برنس", "ما شاء الله عليك", "يلا يا بطل"];
+let lastMot='';const mot=()=>{if(S.settings.motiv===false)return'';const l=MOT.filter(x=>x!==lastMot);return lastMot=l[Math.floor(Math.random()*l.length)]};
+// stable line for a given set so it doesn't change on every tap
+const motFor=seed=>MOT[[...seed].reduce((h,c)=>(h*31+c.charCodeAt(0))>>>0,7)%MOT.length];
 // ---------- Timer / clock / wake ----------
 let T={end:0,tot:0,iv:0},actx;
 function unlockAudio(){try{actx??=new (window.AudioContext||window.webkitAudioContext)();actx.resume()}catch(e){}}
 function beep(){try{[0,.25,.5].forEach(d=>{const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=880;o.connect(g);g.connect(actx.destination);g.gain.setValueAtTime(.4,actx.currentTime+d);g.gain.exponentialRampToValueAtTime(.001,actx.currentTime+d+.2);o.start(actx.currentTime+d);o.stop(actx.currentTime+d+.22)})}catch(e){}}
-function startTimer(sec,lab){T.end=Date.now()+sec*1e3;T.tot=sec;$('#tlab').textContent=lab;$('#timer').classList.add('on');$('#timer').classList.remove('ring');clearInterval(T.iv);T.iv=setInterval(tick,250);tick()}
+function startTimer(sec,lab,m=''){$('#tmot').textContent=m;T.end=Date.now()+sec*1e3;T.tot=sec;$('#tlab').textContent=lab;$('#timer').classList.add('on');$('#timer').classList.remove('ring');clearInterval(T.iv);T.iv=setInterval(tick,250);tick()}
 function stopTimer(){clearInterval(T.iv);$('#timer').classList.remove('on')}
 function tick(){
   const left=Math.max(0,Math.ceil((T.end-Date.now())/1e3));
