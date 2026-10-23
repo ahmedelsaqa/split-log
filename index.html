@@ -10,7 +10,9 @@
 <title>Split Log</title>
 <style>
 /* Split Log — "pin-loaded" system. steel = floor, chalk = cards, graphite = plates/ink, pin = the one accent */
-:root{--steel:#E4E6E9;--chalk:#F7F7F5;--ink:#1D2026;--plate:#2B2F37;--iron:#5B616B;--rule:#CDD1D6;--pin:#F2C230;--fail:#D8432B;--ok:#2E7D4F}
+:root{--steel:#E4E6E9;--chalk:#F7F7F5;--ink:#1D2026;--plate:#2B2F37;--iron:#5B616B;--rule:#CDD1D6;--pin:#F2C230;--fail:#D8432B;--ok:#2E7D4F;--field:#fff;--k:#1D2026}
+:root[data-theme=dark]{--steel:#121418;--chalk:#1C1F25;--ink:#EEF0F3;--iron:#9AA1AB;--rule:#2E333B;--field:#262A31;color-scheme:dark}
+@media (prefers-color-scheme:dark){:root[data-theme=auto]{--steel:#121418;--chalk:#1C1F25;--ink:#EEF0F3;--iron:#9AA1AB;--rule:#2E333B;--field:#262A31;color-scheme:dark}}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;background:var(--steel);color:var(--ink);font:400 15px/1.4 'Inter Tight',system-ui,sans-serif}
 #app{max-width:520px;margin:0 auto;padding:0 14px 120px}
@@ -24,10 +26,12 @@ h1.d{font-size:34px;margin:4px 0 2px}h2.sec{margin:26px 2px 8px}
 .brand{font-size:26px}
 .back{width:44px;height:44px;border-radius:12px;background:var(--chalk);border:1px solid var(--rule);font-size:24px;font-weight:600;line-height:1}
 .card{background:var(--chalk);border:1px solid var(--rule);border-radius:16px;overflow:hidden}
+.card.ex{overflow:clip} /* clip, not hidden, so the log button can stick */
+select{font:600 16px 'Inter Tight',sans-serif;height:48px;width:100%;margin-top:4px;border:2px solid var(--rule);border-radius:12px;background:var(--field);color:var(--ink);padding:0 10px}
 .pad{padding:14px 16px 16px}
 .meta{font-size:13px;color:var(--iron);margin-top:6px}
-.btn{display:flex;align-items:center;justify-content:center;width:100%;min-height:56px;border-radius:12px;background:var(--pin);color:var(--ink);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:21px;letter-spacing:.04em;text-transform:uppercase}
-.btn.ghost{background:transparent;border:2px solid var(--ink)}
+.btn{display:flex;align-items:center;justify-content:center;width:100%;min-height:56px;border-radius:12px;background:var(--pin);color:var(--k);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:21px;letter-spacing:.04em;text-transform:uppercase}
+.btn.ghost{background:transparent;border:2px solid var(--ink);color:var(--ink)}
 .btn.dark{background:var(--ink);color:var(--chalk)}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
 /* 8-day cycle strip: each cell is a real day of the rotation */
@@ -35,7 +39,7 @@ h1.d{font-size:34px;margin:4px 0 2px}h2.sec{margin:26px 2px 8px}
 .cycle i{font-style:normal;text-align:center;font-family:'Barlow Condensed';font-weight:700;font-size:13px;padding:7px 0;border-radius:8px;background:var(--chalk);border:1px solid var(--rule);color:var(--iron)}
 .cycle i.rest{background:transparent;border-style:dashed}
 .cycle i.past{background:var(--ink);color:var(--chalk);border-color:var(--ink)}
-.cycle i.now{background:var(--pin);color:var(--ink);border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.cycle i.now{background:var(--pin);color:var(--k);border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
 /* photo: start/end frames alternate */
 .ph{position:relative;width:100%;aspect-ratio:3/2;overflow:hidden;background:#111}
 .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
@@ -47,7 +51,7 @@ h1.d{font-size:34px;margin:4px 0 2px}h2.sec{margin:26px 2px 8px}
 /* lists */
 .list>*+*{border-top:1px solid var(--rule)}
 .drow{display:grid;grid-template-columns:52px 1fr 20px;align-items:center;gap:10px;width:100%;text-align:left;padding:12px 14px}
-.drow .code{font-size:26px}.drow.next .code{background:var(--pin);border-radius:8px;text-align:center;padding:4px 0}
+.drow .code{font-size:26px}.drow.next .code{background:var(--pin);color:var(--k);border-radius:8px;text-align:center;padding:4px 0}
 .t{display:block;font-weight:600;font-size:15px}.s{display:block;font-size:13px;color:var(--iron)}
 .chev{font-size:22px;color:var(--iron)}
 .xrow{display:grid;grid-template-columns:96px 1fr;gap:12px;padding:10px;align-items:center}
@@ -65,37 +69,37 @@ h1.d{font-size:34px;margin:4px 0 2px}h2.sec{margin:26px 2px 8px}
 .last{margin-top:10px;font-size:14px}.last b{font-weight:600}
 .hint{margin-top:8px;display:inline-block;background:var(--ok);color:#fff;border-radius:8px;padding:5px 10px;font-size:13px;font-weight:600}
 /* signature: the set list is a pin-loaded weight stack */
-.stack{position:relative;margin:16px 0 14px;padding:6px;background:var(--ink);border-radius:12px}
+.stack{position:relative;margin:16px 0 14px;padding:6px;background:var(--k);border-radius:12px}
 .stack::before{content:'';position:absolute;top:0;bottom:0;right:28px;width:4px;background:#3A3F49}
 .plate{position:relative;display:grid;grid-template-columns:86px 1fr 34px;align-items:center;width:100%;height:46px;margin:4px 0;padding:0 0 0 12px;border-radius:6px;background:var(--plate);color:#AEB4BE;text-align:left;border-left:4px solid #3A3F49}
 .plate .pk{font:700 14px 'Barlow Condensed';letter-spacing:.1em;text-transform:uppercase}
 .plate .pv{font:800 20px 'Barlow Condensed';color:var(--chalk)}
-.plate .hole{position:relative;justify-self:center;width:14px;height:14px;border-radius:50%;background:var(--ink);box-shadow:inset 0 0 0 2px #444a55}
+.plate .hole{position:relative;justify-self:center;width:14px;height:14px;border-radius:50%;background:var(--k);box-shadow:inset 0 0 0 2px #444a55}
 .plate.fail{border-left-color:var(--fail)}.plate.fail .pk{color:#F08A78}
 .plate.done .pv::after{content:'  \2713';color:var(--pin)}
 .plate:not(.done) .pv{color:#7F8692;font-weight:700;font-size:17px}
 .plate.cur{background:#3A3F49;color:var(--chalk)}
-.plate.cur .hole{background:var(--pin);box-shadow:0 0 0 3px var(--ink)}
+.plate.cur .hole{background:var(--pin);box-shadow:0 0 0 3px var(--k)}
 .plate.cur .hole::after{content:'';position:absolute;left:10px;top:50%;width:16px;height:6px;margin-top:-3px;border-radius:3px;background:var(--pin)}
 /* logger */
 .one{display:grid;gap:10px}
 .lrow{display:grid;grid-template-columns:70px 60px 1fr 60px;gap:8px;align-items:center}
 .step{height:60px;border-radius:12px;background:var(--ink);color:var(--chalk);font-size:30px;font-weight:600}
-input{font:800 30px 'Barlow Condensed',sans-serif;height:60px;width:100%;min-width:0;border:2px solid var(--rule);border-radius:12px;background:#fff;color:var(--ink);text-align:center}
+input{font:800 30px 'Barlow Condensed',sans-serif;height:60px;width:100%;min-width:0;border:2px solid var(--rule);border-radius:12px;background:var(--field);color:var(--ink);text-align:center}
 input::placeholder{color:#A8AEB7;font-weight:700;font-size:20px}
 input:focus{outline:none;border-color:var(--ink)}
 .how{margin-top:16px;font-size:14px}.how summary{font-weight:600;cursor:pointer;padding:6px 0}.how ol{margin:6px 0 0;padding-left:20px;color:var(--iron)}
 .nav{display:grid;grid-template-columns:1fr 2fr;gap:10px;margin-top:12px}
 .nav .btn.ghost{font-size:18px}
 /* rest timer */
-#timer{position:fixed;inset:0;z-index:50;background:var(--ink);color:var(--chalk);display:none;align-items:center;justify-content:center;padding:24px}
+#timer{position:fixed;inset:0;z-index:50;overflow:hidden;background:var(--k);color:#F7F7F5;display:none;align-items:center;justify-content:center;padding:24px}
 #timer.on{display:flex}#timer .in{width:100%;max-width:440px;text-align:center}
 #timer .lbl{color:#AEB4BE;font-size:15px}
 #timer .tv{font:800 150px/1 'Barlow Condensed';color:var(--pin);font-variant-numeric:tabular-nums;margin:8px 0 14px}
 #timer .bar{height:6px;background:#3A3F49;border-radius:3px;overflow:hidden;margin-bottom:20px}#timer .bar i{display:block;height:100%;background:var(--pin)}
 #timer .tb{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
 #timer .tb button{height:52px;border-radius:12px;background:#2B2F37;font:700 18px 'Barlow Condensed';letter-spacing:.06em}
-#timer.ring{background:var(--pin)}#timer.ring .tv,#timer.ring .lbl{color:var(--ink)}
+#timer.ring{background:var(--pin)}#timer.ring .tv,#timer.ring .lbl{color:var(--k)}
 /* exercise picker sheet */
 #sheet{position:fixed;inset:0;z-index:40;background:rgba(29,32,38,.55);display:flex;align-items:flex-end;justify-content:center}
 .sh{width:100%;max-width:520px;max-height:88vh;overflow:auto;background:var(--steel);border-radius:18px 18px 0 0;padding:14px 14px calc(18px + env(safe-area-inset-bottom))}
@@ -103,15 +107,20 @@ input:focus{outline:none;border-color:var(--ink)}
 .optlist{display:grid;gap:8px}
 .opt{display:grid;grid-template-columns:110px 1fr 24px;gap:12px;align-items:center;width:100%;text-align:left;background:var(--chalk);border:2px solid var(--rule);border-radius:14px;padding:8px}
 .opt .ph{border-radius:10px;aspect-ratio:4/3}.opt .ar{font-size:13px}
-.opt.on{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}.opt .ck{font:800 22px 'Barlow Condensed';background:var(--pin);border-radius:50%;width:26px;height:26px;display:grid;place-items:center}
+.opt.on{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}.opt .ck{font:800 22px 'Barlow Condensed';background:var(--pin);color:var(--k);border-radius:50%;width:26px;height:26px;display:grid;place-items:center}
 .opt:disabled{opacity:.45}
 .mot{font:900 28px/1.35 Cairo,sans-serif;text-align:center;color:var(--pin);margin-bottom:14px}
-.mot.hype{color:var(--fail);font-size:24px;margin:2px 0 0}.sum .mot{color:var(--ink);font-size:22px}#timer.ring .mot{color:var(--ink)}
+.mot.hype{color:var(--fail);font-size:24px;margin:2px 0 0}.sum .mot{color:var(--ink);font-size:22px}#timer.ring .mot{color:var(--k)}
 .tog{display:flex;align-items:center;gap:10px;padding:4px 16px 14px;font-weight:600}.tog input{width:22px;height:22px;accent-color:var(--ink)}
+.logbtn{position:sticky;bottom:calc(10px + env(safe-area-inset-bottom));z-index:3;margin-top:10px;box-shadow:0 8px 20px rgba(0,0,0,.22)}
+.spark{display:flex;align-items:center;gap:10px;margin-top:6px;color:var(--ink)}.spark svg{width:120px;height:26px;flex:none}.spark.big svg{width:100%;max-width:300px;height:54px}.spark.big{flex-direction:column;align-items:flex-start;gap:2px;margin-top:10px}
+.days14{display:grid;grid-template-columns:repeat(14,1fr);gap:3px}.days14 i{font-style:normal;aspect-ratio:1/1.3;border-radius:6px;background:var(--steel);border:1px solid var(--rule);display:grid;place-items:end center;padding-bottom:3px}
+.days14 i b{font:700 10px 'Barlow Condensed';color:var(--iron)}.days14 i.on{background:var(--pin);border-color:var(--pin)}.days14 i.on b{color:var(--k)}.days14 i.t{outline:2px solid var(--ink);outline-offset:1px}
+.cf{position:absolute;top:-16px;width:8px;height:14px;border-radius:2px;animation:fall linear forwards}@keyframes fall{to{transform:translateY(110vh) rotate(600deg)}}
 /* history, settings, summary */
 .hist summary{list-style:none;display:grid;grid-template-columns:52px 1fr;gap:10px;align-items:center;padding:12px 14px;cursor:pointer}
 .hist summary .code{font-size:24px}.hist table{width:calc(100% - 28px);margin:0 14px 10px;font-size:13px;border-collapse:collapse}.hist td{padding:5px 0;border-top:1px solid var(--rule)}.hist td+td{text-align:right;font-weight:600}
-.sm{border:1px solid var(--rule);background:#fff;border-radius:10px;padding:10px 12px;font-weight:600;font-size:14px}
+.sm{border:1px solid var(--rule);background:var(--field);border-radius:10px;padding:10px 12px;font-weight:600;font-size:14px}
 .settings summary{padding:14px 16px;font-weight:600;cursor:pointer}
 .grid4{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px}
 .grid4 label{font-size:13px;color:var(--iron)}.grid4 input{height:48px;font-size:22px;margin-top:4px}
@@ -128,7 +137,7 @@ input:focus{outline:none;border-color:var(--ink)}
 <script>window.onerror=(m,u,l)=>{const d=document.createElement('div');d.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:99;background:#c00;color:#fff;padding:10px;font:12px monospace';d.textContent='Error: '+m+' (line '+l+')';document.body.append(d)}</script>
 <script>
 // ---------- Program ----------
-const F='F';
+const F='F',AB='AB'; // F = bodyweight, AB = abs (3 x 20)
 const AR={"Cable chest press":"ضغط صدر بالكابل","Dumbbell bench press":"بنش مستوي دمبل","Incline cable chest press":"بنش عالي بالكابل","Incline dumbbell press":"بنش عالي دمبل","Cable crossover":"كروس أوفر بالكابل","Low cable crossover":"كروس أوفر من تحت","Dumbbell flyes":"تفتيح دمبل","Flat bench cable flyes":"تفتيح كابل على بنش","Smith machine decline press":"بنش منخفض سميث","Decline chest press machine":"بنش منخفض جهاز","Chest dips":"متوازي للصدر","V-bar push-down":"ترايسبس بالمثلث","Straight-bar push-down":"ترايسبس بالبار","Machine triceps extension":"ترايسبس جهاز","Dumbbell overhead extension":"ترايسبس خلف الرأس دمبل","Close-grip lat pull-down":"سحب أمامي ضيق","Underhand lat pull-down":"سحب أمامي قبضة عكسية","Rope straight-arm pull-down":"سحب بذراع مفرودة بالحبل","One-arm lat pull-down":"سحب أمامي بذراع واحدة","Smith machine bent-over row":"تجديف سميث","One-arm dumbbell row":"سحب دمبل بذراع واحدة","High row machine":"سحب عالي جهاز","Reverse hyperextension":"ظهر سفلي عكسي","Cable preacher curl":"بايسبس ارتكاز بالكابل","Machine biceps curl":"بايسبس جهاز","Dumbbell curl":"بايسبس دمبل","Dumbbell hammer curl":"بايسبس هامر دمبل","Dumbbell wrist curl":"رسغ دمبل – ساعد","Single-leg extension":"رفرفة أمامي رجل واحدة","Narrow-stance leg press":"دفع رجلين ضيق","Standing leg curl":"رفرفة خلفي واقف","Dumbbell calf raise":"سمانة دمبل","Machine military press":"ضغط أكتاف جهاز أمامي","Seated cable shoulder press":"ضغط أكتاف بالكابل","Dumbbell shoulder press":"ضغط أكتاف دمبل","Smith machine upright row":"سحب عمودي سميث","Dumbbell lateral raise":"رفرفة جانبي دمبل","Cable lateral raise (two-handle)":"رفرفة جانبي كابل بذراعين","Cable rear delt fly":"كتف خلفي بالكابل","Dumbbell rear delt raise":"كتف خلفي دمبل","Floor crunch":"كرانش أرضي","Standing rope crunch":"كرانش واقف بالحبل","Flat bench leg raise":"رفع رجلين على بنش","Hanging leg raise":"رفع رجلين معلق","Oblique crunch":"كرانش جانبي","Cable Russian twist":"لف روسي بالكابل","Reverse cable curl":"بايسبس عكسي بالكابل – ساعد","Cable wrist curl":"رسغ بالكابل – ساعد","Ab crunch machine":"جهاز بطن","Captain's chair knee raise":"رفع الركب على كرسي الكابتن","Cable crunch":"كرانش بالكابل","Cable wood chop":"وود تشوب بالكابل – جوانب","Decline crunch":"كرانش على بنش مائل","Pallof press":"بالوف بريس – ثبات الجذع","Reverse crunch":"كرانش عكسي",'Smith machine bench press':'بنش مستوي سميث','Smith machine squat':'سكوات سميث','Smith machine stiff-leg deadlift':'رفعة رومانية سميث','Calf press on leg press':'سمانة على جهاز دفع الرجلين','Smith machine calf raise':'سمانة سميث','Pec deck fly':'فراشة (بيك دك)','Incline chest press machine':'بنش عالي جهاز','Seated chest press machine':'ضغط صدر جهاز','Rope push-down':'ترايسبس بالحبل','Triceps dips machine':'جهاز ديبس ترايسبس',
 'Smith machine incline press':'بنش عالي سميث','Decline chest press machine':'بنش منخفض جهاز','Machine bench press':'بنش مستوي جهاز','Overhead cable triceps extension':'ترايسبس خلف الرأس بالكابل','Reverse-grip push-down':'ترايسبس قبضة عكسية',
 'Wide-grip lat pull-down':'سحب أمامي واسع','Seated cable row (V-handle)':'سحب أرضي بالمثلث','Chest-supported machine row':'تجديف جهاز مع سند الصدر','Back extension (45° bench)':'ظهر سفلي ٤٥°','Straight-bar cable curl':'بايسبس كابل بالبار','Preacher curl machine':'بايسبس ارتكاز جهاز',
@@ -141,20 +150,20 @@ const HOW={"Pec deck fly": ["Sit on the machine with your back flat on the pad."
 const MUS={chest:'Chest',triceps:'Triceps',biceps:'Biceps',back:'Mid back',lats:'Lats',lowback:'Lower back',quads:'Quads',hams:'Hamstrings',calves:'Calves',shoulders:'Side delts',rear:'Rear delts',traps:'Traps'};
 // Machines + adjustable cables first. A = machine angles, B = cable/Smith angles on the same muscles.
 const DAYS={
-A1:{t:'Chest, Triceps & Abs',ar:'صدر وترايسبس وبطن',g:[['Chest',[['Pec deck fly',2],['Seated chest press machine',0],['Incline chest press machine',0]]],['Triceps',[['Rope push-down',1],['Triceps dips machine',0]]],['Abs',[['Ab crunch machine',0],["Captain's chair knee raise",F]]]]},
-A2:{t:'Back, Biceps, Abs & Forearms',ar:'ظهر وبايسبس وبطن وساعد',g:[['Back',[['Wide-grip lat pull-down',2],['Seated cable row (V-handle)',0],['Chest-supported machine row',0],['Back extension (45° bench)',F]]],['Biceps',[['Straight-bar cable curl',1],['Preacher curl machine',0]]],['Abs',[['Cable crunch',0],['Cable wood chop',0]]],['Forearms',[['Reverse cable curl',0]]]]},
+A1:{t:'Chest, Triceps & Abs',ar:'صدر وترايسبس وبطن',g:[['Chest',[['Pec deck fly',2],['Seated chest press machine',0],['Incline chest press machine',0]]],['Triceps',[['Rope push-down',1],['Triceps dips machine',0]]],['Abs',[['Ab crunch machine',AB]]]]},
+A2:{t:'Back, Biceps, Abs & Forearms',ar:'ظهر وبايسبس وبطن وساعد',g:[['Back',[['Wide-grip lat pull-down',2],['Seated cable row (V-handle)',0],['Chest-supported machine row',0],['Back extension (45° bench)',F]]],['Biceps',[['Straight-bar cable curl',1],['Preacher curl machine',0]]],['Abs',[['Ab crunch machine',AB]]],['Forearms',[['Reverse cable curl',0]]]]},
 A3:{t:'Legs & Shoulders',ar:'رجل وأكتاف',g:[['Legs',[['Leg extension',2],['Leg press',1],['Seated leg curl',1],['Calf press on leg press',0]]],['Shoulders',[['Shoulder press machine',2],['Single-arm cable lateral raise',0],['Reverse pec deck',0]]]]},
-B1:{t:'Chest, Triceps & Abs',ar:'صدر وترايسبس وبطن',g:[['Chest',[['Smith machine bench press',2],['Smith machine incline press',0],['Pec deck fly',0]]],['Triceps',[['Overhead cable triceps extension',1],['Reverse-grip push-down',0]]],['Abs',[['Decline crunch',F],['Pallof press',0]]]]},
-B2:{t:'Back, Biceps & Abs',ar:'ظهر وبايسبس وبطن',g:[['Back',[['V-bar lat pull-down',2],['Single-arm seated cable row',0],['Straight-arm cable pull-down',0],['Back extension (45° bench)',F]]],['Biceps',[['High cable curl',1],['Rope hammer cable curl',0]]],['Abs',[['Reverse crunch',F],['Ab crunch machine',0]]]]},
+B1:{t:'Chest, Triceps & Abs',ar:'صدر وترايسبس وبطن',g:[['Chest',[['Smith machine bench press',2],['Smith machine incline press',0],['Pec deck fly',0]]],['Triceps',[['Overhead cable triceps extension',1],['Reverse-grip push-down',0]]],['Abs',[['Ab crunch machine',AB]]]]},
+B2:{t:'Back, Biceps & Abs',ar:'ظهر وبايسبس وبطن',g:[['Back',[['V-bar lat pull-down',2],['Single-arm seated cable row',0],['Straight-arm cable pull-down',0],['Back extension (45° bench)',F]]],['Biceps',[['High cable curl',1],['Rope hammer cable curl',0]]],['Abs',[['Ab crunch machine',AB]]]]},
 B3:{t:'Legs & Shoulders',ar:'رجل وأكتاف',g:[['Legs',[['Smith machine squat',2],['Smith machine stiff-leg deadlift',1],['Smith machine calf raise',0]]],['Shoulders',[['Smith machine shoulder press',2],['Cable upright row',0],['Cable face pull',0]]]]}
 };
 const ORDER=['A1','A2','A3','B1','B2','B3'],CYCLE=['A1','A2','A3','R','B1','B2','B3','R'];
 const key=n=>n.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 // warm-up (first exercise of a muscle only) → 2 working sets → 2 sets to failure, same weight
-const setsFor=w=>[...(w&&w!==F?['warm']:[]),'work','work','fail','fail'];
-const LBL={warm:'Warm-up',work:'Set',fail:'Failure'},TGT={warm:'15',work:'10–12',fail:'max'};
+const setsFor=w=>w===AB?['abs','abs','abs']:[...(w&&w!==F?['warm']:[]),'work','work','fail','fail'];
+const LBL={warm:'Warm-up',work:'Set',fail:'Failure',abs:'Set'},TGT={warm:'15',work:'10–12',fail:'max',abs:'20'};
 // alternatives: every exercise can be replaced by another move for the same muscle (pick what the club has)
-const POOLS={"flat": ["Seated chest press machine", "Machine bench press", "Smith machine bench press", "Cable chest press", "Dumbbell bench press"], "incline": ["Incline chest press machine", "Smith machine incline press", "Incline cable chest press", "Incline dumbbell press"], "fly": ["Pec deck fly", "Cable crossover", "Low cable crossover", "Flat bench cable flyes", "Dumbbell flyes"], "decline": ["Decline chest press machine", "Smith machine decline press", "Chest dips"], "push": ["Rope push-down", "Reverse-grip push-down", "V-bar push-down", "Straight-bar push-down", "Triceps dips machine"], "over": ["Overhead cable triceps extension", "Machine triceps extension", "Dumbbell overhead extension"], "pull": ["Wide-grip lat pull-down", "V-bar lat pull-down", "Close-grip lat pull-down", "Underhand lat pull-down", "One-arm lat pull-down"], "straight": ["Straight-arm cable pull-down", "Rope straight-arm pull-down"], "row": ["Seated cable row (V-handle)", "Single-arm seated cable row", "Chest-supported machine row", "High row machine", "Smith machine bent-over row", "One-arm dumbbell row"], "lowback": ["Back extension (45° bench)", "Reverse hyperextension"], "curl": ["Straight-bar cable curl", "Preacher curl machine", "Machine biceps curl", "Cable preacher curl", "High cable curl", "Dumbbell curl"], "hammer": ["Rope hammer cable curl", "Dumbbell hammer curl"], "fore": ["Reverse cable curl", "Cable wrist curl", "Dumbbell wrist curl"], "quadiso": ["Leg extension", "Single-leg extension"], "squat": ["Leg press", "Smith machine squat", "Hack squat", "Narrow-stance leg press"], "hams": ["Seated leg curl", "Lying leg curl", "Standing leg curl", "Smith machine stiff-leg deadlift"], "calf": ["Calf press on leg press", "Seated calf machine", "Standing calf raise", "Smith machine calf raise", "Dumbbell calf raise"], "press": ["Shoulder press machine", "Smith machine shoulder press", "Machine military press", "Seated cable shoulder press", "Dumbbell shoulder press"], "side": ["Single-arm cable lateral raise", "Cable lateral raise (two-handle)", "Dumbbell lateral raise", "Cable upright row", "Smith machine upright row"], "rear": ["Reverse pec deck", "Cable face pull", "Cable rear delt fly", "Dumbbell rear delt raise"], "crunch": ["Ab crunch machine", "Cable crunch", "Standing rope crunch", "Decline crunch", "Floor crunch"], "lower": ["Captain's chair knee raise", "Reverse crunch", "Flat bench leg raise", "Hanging leg raise"], "oblique": ["Cable wood chop", "Pallof press", "Cable Russian twist", "Oblique crunch"]};
+const POOLS={"flat": ["Seated chest press machine", "Machine bench press", "Smith machine bench press", "Cable chest press", "Dumbbell bench press"], "incline": ["Incline chest press machine", "Smith machine incline press", "Incline cable chest press", "Incline dumbbell press"], "fly": ["Pec deck fly", "Cable crossover", "Low cable crossover", "Flat bench cable flyes", "Dumbbell flyes"], "decline": ["Decline chest press machine", "Smith machine decline press", "Chest dips"], "push": ["Rope push-down", "Reverse-grip push-down", "V-bar push-down", "Straight-bar push-down", "Triceps dips machine"], "over": ["Overhead cable triceps extension", "Machine triceps extension", "Dumbbell overhead extension"], "pull": ["Wide-grip lat pull-down", "V-bar lat pull-down", "Close-grip lat pull-down", "Underhand lat pull-down", "One-arm lat pull-down"], "straight": ["Straight-arm cable pull-down", "Rope straight-arm pull-down"], "row": ["Seated cable row (V-handle)", "Single-arm seated cable row", "Chest-supported machine row", "High row machine", "Smith machine bent-over row", "One-arm dumbbell row"], "lowback": ["Back extension (45° bench)", "Reverse hyperextension"], "curl": ["Straight-bar cable curl", "Preacher curl machine", "Machine biceps curl", "Cable preacher curl", "High cable curl", "Dumbbell curl"], "hammer": ["Rope hammer cable curl", "Dumbbell hammer curl"], "fore": ["Reverse cable curl", "Cable wrist curl", "Dumbbell wrist curl"], "quadiso": ["Leg extension", "Single-leg extension"], "squat": ["Leg press", "Smith machine squat", "Hack squat", "Narrow-stance leg press"], "hams": ["Seated leg curl", "Lying leg curl", "Standing leg curl", "Smith machine stiff-leg deadlift"], "calf": ["Calf press on leg press", "Seated calf machine", "Standing calf raise", "Smith machine calf raise", "Dumbbell calf raise"], "press": ["Shoulder press machine", "Smith machine shoulder press", "Machine military press", "Seated cable shoulder press", "Dumbbell shoulder press"], "side": ["Single-arm cable lateral raise", "Cable lateral raise (two-handle)", "Dumbbell lateral raise", "Cable upright row", "Smith machine upright row"], "rear": ["Reverse pec deck", "Cable face pull", "Cable rear delt fly", "Dumbbell rear delt raise"], "crunch": ["Ab crunch machine", "Decline crunch"], "lower": ["Captain's chair knee raise", "Reverse crunch", "Flat bench leg raise", "Hanging leg raise"]};
 const EQ={"Seated chest press machine": "Machine", "Machine bench press": "Machine", "Smith machine bench press": "Smith", "Cable chest press": "Cable", "Dumbbell bench press": "Dumbbells", "Incline chest press machine": "Machine", "Smith machine incline press": "Smith", "Incline cable chest press": "Cable", "Incline dumbbell press": "Dumbbells", "Pec deck fly": "Machine", "Cable crossover": "Cable", "Low cable crossover": "Cable", "Flat bench cable flyes": "Cable", "Dumbbell flyes": "Dumbbells", "Decline chest press machine": "Machine", "Smith machine decline press": "Smith", "Chest dips": "Bench / station", "Rope push-down": "Cable", "Reverse-grip push-down": "Cable", "V-bar push-down": "Cable", "Straight-bar push-down": "Cable", "Triceps dips machine": "Machine", "Overhead cable triceps extension": "Cable", "Machine triceps extension": "Machine", "Dumbbell overhead extension": "Dumbbells", "Wide-grip lat pull-down": "Cable", "V-bar lat pull-down": "Cable", "Close-grip lat pull-down": "Cable", "Underhand lat pull-down": "Cable", "One-arm lat pull-down": "Cable", "Straight-arm cable pull-down": "Cable", "Rope straight-arm pull-down": "Cable", "Seated cable row (V-handle)": "Cable", "Single-arm seated cable row": "Cable", "Chest-supported machine row": "Machine", "High row machine": "Machine", "Smith machine bent-over row": "Smith", "One-arm dumbbell row": "Dumbbells", "Back extension (45° bench)": "Bench / station", "Reverse hyperextension": "Machine", "Straight-bar cable curl": "Cable", "Preacher curl machine": "Machine", "Machine biceps curl": "Machine", "Cable preacher curl": "Cable", "High cable curl": "Cable", "Dumbbell curl": "Dumbbells", "Rope hammer cable curl": "Cable", "Dumbbell hammer curl": "Dumbbells", "Reverse cable curl": "Cable", "Cable wrist curl": "Cable", "Dumbbell wrist curl": "Dumbbells", "Leg extension": "Machine", "Single-leg extension": "Machine", "Leg press": "Machine", "Smith machine squat": "Smith", "Hack squat": "Machine", "Narrow-stance leg press": "Machine", "Seated leg curl": "Machine", "Lying leg curl": "Machine", "Standing leg curl": "Machine", "Smith machine stiff-leg deadlift": "Smith", "Calf press on leg press": "Machine", "Seated calf machine": "Machine", "Standing calf raise": "Machine", "Smith machine calf raise": "Smith", "Dumbbell calf raise": "Dumbbells", "Shoulder press machine": "Machine", "Smith machine shoulder press": "Smith", "Machine military press": "Machine", "Seated cable shoulder press": "Cable", "Dumbbell shoulder press": "Dumbbells", "Single-arm cable lateral raise": "Cable", "Cable lateral raise (two-handle)": "Cable", "Dumbbell lateral raise": "Dumbbells", "Cable upright row": "Cable", "Smith machine upright row": "Smith", "Reverse pec deck": "Machine", "Cable face pull": "Cable", "Cable rear delt fly": "Cable", "Dumbbell rear delt raise": "Dumbbells", "Ab crunch machine": "Machine", "Cable crunch": "Cable", "Standing rope crunch": "Cable", "Decline crunch": "Bodyweight", "Floor crunch": "Bodyweight", "Captain's chair knee raise": "Bench / station", "Reverse crunch": "Bodyweight", "Flat bench leg raise": "Bodyweight", "Hanging leg raise": "Bodyweight", "Cable wood chop": "Cable", "Pallof press": "Cable", "Cable Russian twist": "Cable", "Oblique crunch": "Bodyweight"};
 const POOL={};for(const p in POOLS)for(const n of POOLS[p])POOL[n]=p;
 const opts=n0=>POOL[n0]?POOLS[POOL[n0]]:[n0];
@@ -168,6 +177,8 @@ function collectAnims(){}
 const SK='splitlog.v1';
 let S=(()=>{try{return JSON.parse(localStorage.getItem(SK))||{}}catch(e){return{}}})();
 S.work??={};S.pref??={};for(const k in S.pref)if(typeof S.pref[k]!=='string')delete S.pref[k];S.history??=[];S.active??=null;S.settings={rest:90,warm:60,round:2.5,cardio:10,...(S.settings||{})};
+if(!S.settings.unit){S.settings.unit='lb';if(+S.settings.round===2.5)S.settings.round=5} // US machines are marked in pounds
+const U=()=>S.settings.unit||'lb';
 const save=()=>localStorage.setItem(SK,JSON.stringify(S));
 const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
 const dBetween=(a,b)=>Math.round((new Date(b+'T12:00')-new Date(a+'T12:00'))/864e5);
@@ -188,9 +199,21 @@ function nextUp(){
 }
 function cyclePos(n){const L=S.history[S.history.length-1];if(!L)return 0;if(n.done)return CYCLE.indexOf(L.day);if(n.rest)return CYCLE.indexOf(L.day)+n.rest;return CYCLE.indexOf(n.id)}
 
+// ---------- Progress ----------
+// best working-set weight per session for one exercise
+function series(k){const out=[];for(const h of S.history){const e=h.ex[k];if(!e)continue;const ws=e.sets.filter(q=>q.done&&q.t!=='warm'&&num(q.w)!=='').map(q=>+q.w);if(ws.length)out.push({d:h.date,w:Math.max(...ws)})}return out.slice(-10)}
+function spark(k,big){const p=series(k);if(p.length<2)return'';const W=big?300:120,H=big?54:26,ws=p.map(x=>x.w),mn=Math.min(...ws),r=(Math.max(...ws)-mn)||1;
+  const pts=p.map((x,i)=>[i*(W-10)/(p.length-1)+5,H-5-(x.w-mn)/r*(H-10)]),dl=p[p.length-1].w-p[0].w,f=v=>v.toFixed(1);
+  return`<div class="spark ${big?'big':''}"><svg viewBox="0 0 ${W} ${H}" aria-hidden="true"><polyline points="${pts.map(q=>f(q[0])+','+f(q[1])).join(' ')}" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>${pts.map((q,i)=>i===pts.length-1?`<circle cx="${f(q[0])}" cy="${f(q[1])}" r="5" fill="var(--pin)" stroke="currentColor" stroke-width="2"/>`:`<circle cx="${f(q[0])}" cy="${f(q[1])}" r="2.5" fill="currentColor"/>`).join('')}</svg><span class="s">${dl>0?'+':''}${dl} ${U()} over ${p.length} sessions</span></div>`}
+const KN={};for(const n in IMG)KN[key(n)]=n;
+// personal records: heaviest working set per exercise, newest first
+function records(){const best={};for(const h of S.history)for(const k in h.ex){for(const q of h.ex[k].sets)if(q.done&&q.t!=='warm'&&num(q.w)!==''&&(!best[k]||+q.w>best[k].w))best[k]={w:+q.w,r:q.r,d:h.date}}
+  return Object.entries(best).filter(([k])=>KN[k]).sort((a,b)=>b[1].d.localeCompare(a[1].d)).slice(0,6)}
+function streak(){const ds=[...new Set(S.history.map(h=>h.date))].sort().reverse();let n=0,prev=today();for(const d of ds){if(dBetween(d,prev)>2)break;n++;prev=d}return n}
+
 // ---------- Home ----------
 const lastDate=d=>{for(let i=S.history.length-1;i>=0;i--)if(S.history[i].day===d)return fmtD(S.history[i].date);return null};
-const scheme=x=>(x.bw?'Bodyweight · ':x.sets.includes('warm')?'Warm-up + ':'')+'2 sets + 2 to failure';
+const scheme=x=>x.sets[0]==='abs'?'3 sets × 20 reps':(x.bw?'Bodyweight · ':x.sets.includes('warm')?'Warm-up + ':'')+'2 sets + 2 to failure';
 function home(){
   if(S.active)return resumeCard();
   const n=nextUp(),pos=cyclePos(n),id=n.id,D=DAYS[id],xs=exList(id,S.pref);
@@ -203,6 +226,11 @@ function home(){
     <div class="meta">${id} · ${xs.length} exercises · about ${mins(xs)} min</div>
     <div class="row2"><button class="btn ghost" data-a="day" data-id="${id}">See exercises</button><button class="btn" data-a="start" data-id="${id}">Start</button></div>
   </div></section>
+  ${S.history.length?(()=>{const done=new Set(S.history.map(h=>h.date)),wk=S.history.filter(h=>dBetween(h.date,today())<7).length,rec=records();
+   const days=Array.from({length:14},(_,i)=>{const d=new Date();d.setDate(d.getDate()-13+i);const k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');return{k,l:d.toLocaleDateString('en-GB',{weekday:'narrow'}),on:done.has(k),t:k===today()}});
+   return`<h2 class="lbl sec">Progress</h2><section class="card pad"><div class="days14">${days.map(d=>`<i class="${d.on?'on':''} ${d.t?'t':''}" title="${d.k}"><b>${d.l}</b></i>`).join('')}</div>
+   <div class="stats" style="margin:14px 0 0"><div><b class="d">${wk}</b><span class="lbl">this week</span></div><div><b class="d">${streak()}</b><span class="lbl">streak</span></div><div><b class="d">${S.history.length}</b><span class="lbl">workouts</span></div></div></section>
+   ${rec.length?`<h2 class="lbl sec">Personal records</h2><div class="card list">${rec.map(([k,b])=>`<div class="drow" style="grid-template-columns:1fr auto"><span><span class="t">${esc(KN[k])}</span><span class="s">${fmtD(b.d)}</span></span><b class="d" style="font-size:24px">${b.w} ${U()}</b></div>`).join('')}</div>`:''}`})():''}
   <h2 class="lbl sec">All days</h2>
   <div class="card list">${ORDER.map(d=>{const L=lastDate(d);return`<button class="drow ${d===id?'next':''}" data-a="day" data-id="${d}"><b class="d code">${d}</b><span><span class="t">${DAYS[d].t}</span><span class="s">${exList(d).length} exercises · ${L?'last '+L:'not done yet'}</span></span><span class="chev">›</span></button>`}).join('')}</div>
   <h2 class="lbl sec">History</h2>
@@ -213,8 +241,11 @@ function home(){
     <label>Rest between sets (sec)<input type="number" inputmode="numeric" data-s="rest" value="${S.settings.rest}"></label>
     <label>Rest after warm-up (sec)<input type="number" inputmode="numeric" data-s="warm" value="${S.settings.warm}"></label>
     <label>Cardio warm-up (min)<input type="number" inputmode="numeric" data-s="cardio" value="${S.settings.cardio}"></label>
-    <label>Weight step (kg)<input type="number" inputmode="decimal" data-s="round" value="${S.settings.round}"></label></div>
-   <label class="tog"><input type="checkbox" data-a="motiv" ${S.settings.motiv===false?'':'checked'}> Motivation messages</label>
+    <label>Weight step (${U()})<input type="number" inputmode="decimal" data-s="round" value="${S.settings.round}"></label></div>
+   <div class="grid4" style="margin-top:10px">
+    <label>Units<select data-s2="unit">${['lb','kg'].map(u=>`<option ${U()===u?'selected':''}>${u}</option>`).join('')}</select></label>
+    <label>Theme<select data-s2="theme">${[['auto','Match phone'],['light','Light'],['dark','Dark']].map(([v,l])=>`<option value="${v}" ${(S.settings.theme||'auto')===v?'selected':''}>${l}</option>`).join('')}</select></label></div>
+   <label class="tog" style="margin-top:12px"><input type="checkbox" data-a="motiv" ${S.settings.motiv===false?'':'checked'}> Motivation messages</label>
    <div class="row2" style="padding:0 16px 16px"><button class="sm" data-a="export">Export backup</button><button class="sm" data-a="import">Import backup</button></div>
   </details>`;
 }
@@ -233,7 +264,7 @@ function dayView(id){
   <h1 class="d">${D.t}</h1><div class="ar">${D.ar}</div>
   <div class="meta">${xs.length} exercises · about ${mins(xs)} min · starts with ${S.settings.cardio} min cardio</div>
   ${groups.map(g=>`<h2 class="lbl sec">${g}</h2><div class="card list">${xs.filter(x=>x.grp===g).map(x=>{const L=lastFor(x.k),best=L&&L.e.sets.filter(q=>q.done&&q.t!=='warm').map(q=>`${q.w||'BW'}×${q.r||'?'}`)[0];
-    return`<div class="xrow">${photo(x.n,false)}<div><span class="t">${esc(x.n)}</span><div class="ar">${AR[x.n]||''}</div><span class="s">${scheme(x)}${best?' · last '+best:''}</span>${opts(x.n0).length>1?`<button class="sm swapb" data-a="opts" data-n0="${esc(x.n0)}" data-ctx="day" data-id="${id}">⇄ Change exercise (${opts(x.n0).length-1} options)</button>`:''}</div></div>`}).join('')}</div>`).join('')}
+    return`<div class="xrow">${photo(x.n,false)}<div><span class="t">${esc(x.n)}</span><div class="ar">${AR[x.n]||''}</div><span class="s">${scheme(x)}${best?' · last '+best:''}</span>${spark(x.k)}${opts(x.n0).length>1?`<button class="sm swapb" data-a="opts" data-n0="${esc(x.n0)}" data-ctx="day" data-id="${id}">⇄ Change exercise (${opts(x.n0).length-1} ${opts(x.n0).length===2?'option':'options'})</button>`:''}</div></div>`}).join('')}</div>`).join('')}
   <div class="dock"><button class="btn" data-a="start" data-id="${id}">Start ${id}</button></div>`;
 }
 function resumeCard(){
@@ -283,7 +314,7 @@ function exCard(x,e){
   return`<article class="card ex" data-k="${x.k}">${photo(x.n)}<div class="pad">
   <div class="lbl">${x.grp} · ${scheme(x)}</div><h1 class="d" id="xt">${esc(x.n)}</h1><div class="ar">${AR[x.n]||''}</div>
   ${opts(x.n0).length>1?`<button class="link" data-a="opts" data-n0="${esc(x.n0)}" data-ctx="wk" data-id="${S.active.day}">Machine busy or missing? Choose another exercise</button>`:''}
-  <div class="last">${last}</div>${hint?`<div class="hint">${hint}</div>`:''}
+  <div class="last">${last}</div>${spark(x.k,true)}${hint?`<div class="hint">${hint}</div>`:''}
   ${setBlock(e,x.bw)}
   ${HOW[x.n]?`<details class="how"><summary>How to do it</summary><ol>${HOW[x.n].map(t=>`<li>${esc(t)}</li>`).join('')}</ol></details>`:''}
   </div></article>`;
@@ -294,12 +325,12 @@ function setBlock(e,bw){
   const j=curSet(e),s=e.sets[j],all=e.sets.every(s=>s.done),rest=s.t==='warm'?S.settings.warm:S.settings.rest;
   return`<div class="stack" role="list">${e.sets.map((q,i)=>`<button role="listitem" class="plate ${q.t} ${q.done?'done':''} ${i===j?'cur':''}" data-a="pick" data-i="${i}" aria-label="${LBL[q.t]} ${i+1}"><span class="pk">${LBL[q.t]}</span><span class="pv">${q.done?`${q.w||'BW'} × ${q.r||'?'}`:`${TGT[q.t]} reps`}</span><span class="hole"></span></button>`).join('')}</div>
   <div class="one" data-i="${j}">
-   <div class="lrow"><span class="lbl">Weight<br>kg</span><button class="step" data-a="sw" data-d="-1" aria-label="Less weight">−</button><input type="number" inputmode="decimal" data-f="w" value="${s.w}" placeholder="${bw?'BW':'kg'}"><button class="step" data-a="sw" data-d="1" aria-label="More weight">+</button></div>
+   <div class="lrow"><span class="lbl">Weight<br>${U()}</span><button class="step" data-a="sw" data-d="-1" aria-label="Less weight">−</button><input type="number" inputmode="decimal" data-f="w" value="${s.w}" placeholder="${bw?'BW':U()}"><button class="step" data-a="sw" data-d="1" aria-label="More weight">+</button></div>
    <div class="lrow"><span class="lbl">Reps</span><button class="step" data-a="sr" data-d="-1" aria-label="Fewer reps">−</button><input type="number" inputmode="numeric" data-f="r" value="${s.r}" placeholder="${TGT[s.t]}"><button class="step" data-a="sr" data-d="1" aria-label="More reps">+</button></div>
    ${s.t==='fail'&&!s.done&&S.settings.motiv!==false?`<div class="mot ar hype">${esc(motFor(today()+S.active.cur+'-'+j))}</div>`:''}
-   <button class="btn" data-a="set">${s.done?'Undo this set':`Log ${LBL[s.t].toLowerCase()} · rest ${rest}s`}</button>
-   ${all?'<button class="btn ghost" data-a="next">Exercise done · next ›</button>':''}
-  </div>`;
+  </div>
+  <button class="btn logbtn" data-a="set">${s.done?'Undo this set':`Log ${LBL[s.t].toLowerCase()} · rest ${rest}s`}</button>
+  ${all?'<button class="btn ghost" style="margin-top:10px" data-a="next">Exercise done · next ›</button>':''}`;
 }
 function finish(){
   const a=S.active,n=Object.values(a.ex).flatMap(e=>e.sets).filter(s=>s.done);
@@ -311,7 +342,7 @@ function finish(){
   S.history.push(a);S.active=null;save();stopTimer();releaseWake();
   const vol=n.reduce((t,s)=>t+(+s.w||0)*(+s.r||0),0),min=Math.round((a.end-a.start)/6e4),xs=exList(a.day,a.sw),full=xs.filter(x=>a.ex[x.k].sets.every(s=>s.done)).length;
   app.innerHTML=`<header class="top"><div class="d brand">Split Log</div><div class="lbl">Workout saved</div></header>
-  <section class="card pad sum"><div class="lbl">${a.day} · ${DAYS[a.day].t}</div><div class="d big" id="vol">0</div><div class="lbl">kg lifted</div>${S.settings.motiv===false?'':`<div class="mot ar" style="margin-top:12px">${esc(mot())}</div>`}
+  <section class="card pad sum"><div class="lbl">${a.day} · ${DAYS[a.day].t}</div><div class="d big" id="vol">0</div><div class="lbl">${U()} lifted</div>${S.settings.motiv===false?'':`<div class="mot ar" style="margin-top:12px">${esc(mot())}</div>`}
    <div class="stats"><div><b class="d">${n.length}</b><span class="lbl">sets</span></div><div><b class="d">${full}/${xs.length}</b><span class="lbl">exercises</span></div><div><b class="d">${min}</b><span class="lbl">minutes</span></div></div>
    <button class="btn" data-a="home">Done</button></section>`;
   const st=performance.now();(function up(t){const k=Math.min(1,(t-st)/900);$('#vol')&&($('#vol').textContent=Math.round(vol*(1-Math.pow(1-k,3))).toLocaleString());if(k<1)requestAnimationFrame(up)})(st);
@@ -348,7 +379,12 @@ app.addEventListener('click',ev=>{
   else if(A==='set'){const e=a.ex[card.dataset.k],j=curSet(e),s=e.sets[j];
     s.done=!s.done;if(s.done&&s.r==='')s.r=s.t==='warm'?15:s.r;
     if(s.done){const nx=e.sets.findIndex(q=>!q.done);e.cur=nx<0?j:nx}else e.cur=j;save();
-    if(s.done){document.activeElement?.blur();navigator.vibrate?.(30);const all=e.sets.every(q=>q.done);startTimer(s.t==='warm'?+S.settings.warm:+S.settings.rest,all?'Exercise done · rest, then next':'Rest · next: set '+(e.cur+1),s.t==='fail'?mot():'')}
+    if(s.done){document.activeElement?.blur();const all=e.sets.every(q=>q.done),best=+S.work[card.dataset.k]||0,pr=s.t!=='warm'&&best>0&&+s.w>best&&!e.prShown;
+      const xs=exList(a.day,a.sw),nextX=all&&a.cur<xs.length?xs[a.cur]:null;
+      if(pr)e.prShown=1;navigator.vibrate?.(pr?[60,40,60,40,220]:30);
+      startTimer(s.t==='warm'?+S.settings.warm:+S.settings.rest,pr?`New best · ${s.w} ${U()}`:nextX?'Exercise done · next: '+nextX.n:all?'Last exercise done':'Rest · next: '+LBL[e.sets[e.cur].t].toLowerCase(),pr||s.t==='fail'?mot():'');
+      if(pr)confetti();
+      if(nextX){a.cur++;save();window.scrollTo(0,0)}} // next exercise opens behind the rest timer
     workout()}
 });
 app.addEventListener('input',ev=>{
@@ -358,6 +394,7 @@ app.addEventListener('input',ev=>{
   const s=e.sets[+t.closest('.one').dataset.i];s[t.dataset.f]=num(t.value);if(t.dataset.f==='w')carry(e,s);
   save();
 });
+app.addEventListener('change',ev=>{const t=ev.target;if(!t.dataset.s2)return;S.settings[t.dataset.s2]=t.value;save();applyTheme();const op=!!document.querySelector('.settings[open]');home();if(op)document.querySelector('.settings').open=true});
 app.addEventListener('focusin',e=>{if(e.target.tagName==='INPUT')e.target.select()});
 function carry(e,s){if(s.t==='warm')return;const i=e.sets.indexOf(s);e.sets.forEach((q,j)=>{if(j>i&&!q.done&&q.t!=='warm')q.w=s.w})}
 // swipe between exercises
@@ -374,6 +411,7 @@ let T={end:0,tot:0,iv:0},actx;
 function unlockAudio(){try{actx??=new (window.AudioContext||window.webkitAudioContext)();actx.resume()}catch(e){}}
 function beep(){try{[0,.25,.5].forEach(d=>{const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=880;o.connect(g);g.connect(actx.destination);g.gain.setValueAtTime(.4,actx.currentTime+d);g.gain.exponentialRampToValueAtTime(.001,actx.currentTime+d+.2);o.start(actx.currentTime+d);o.stop(actx.currentTime+d+.22)})}catch(e){}}
 function startTimer(sec,lab,m=''){$('#tmot').textContent=m;T.end=Date.now()+sec*1e3;T.tot=sec;$('#tlab').textContent=lab;$('#timer').classList.add('on');$('#timer').classList.remove('ring');clearInterval(T.iv);T.iv=setInterval(tick,250);tick()}
+function confetti(){if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;const c=$('#timer');for(let i=0;i<48;i++){const p=document.createElement('i');p.className='cf';p.style.cssText=`left:${Math.random()*100}%;background:${['#F2C230','#F7F7F5','#D8432B'][i%3]};animation-delay:${(Math.random()*.4).toFixed(2)}s;animation-duration:${(1.4+Math.random()).toFixed(2)}s`;c.append(p);setTimeout(()=>p.remove(),2800)}}
 function stopTimer(){clearInterval(T.iv);$('#timer').classList.remove('on')}
 function tick(){
   const left=Math.max(0,Math.ceil((T.end-Date.now())/1e3));
@@ -393,6 +431,8 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 if(S.active&&DAYS[S.active.day]){for(const x of exList(S.active.day,S.active.sw)){const e=S.active.ex[x.k];if(e&&e.sets.map(q=>q.t).join()===x.sets.join())continue;
   const old=e?e.sets:[],ws=old.filter(q=>q.t!=='warm'&&num(q.w)!=='').map(q=>+q.w),w=ws.length?Math.max(...ws):num(S.work[x.k]);
   S.active.ex[x.k]={sets:x.sets.map((t,i)=>old[i]&&old[i].t===t?old[i]:{t,w:t==='warm'?'':w,r:'',done:false})}}save()}
+function applyTheme(){const t=S.settings.theme||'auto',dk=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.dataset.theme=t;document.querySelector('meta[name=theme-color]').content=dk?'#121418':'#E4E6E9'}
+applyTheme();matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',applyTheme);
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
 S.active?workout():home();
 </script>
