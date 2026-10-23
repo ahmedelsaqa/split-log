@@ -352,7 +352,8 @@ function stopTimer(){clearInterval(T.iv);$('#timer').classList.remove('on')}
 function tick(){
   const left=Math.max(0,Math.ceil((T.end-Date.now())/1e3));
   $('#tval').textContent=Math.floor(left/60)+':'+String(left%60).padStart(2,'0');$('#tbar').style.width=(100*left/T.tot)+'%';
-  if(left<=0){clearInterval(T.iv);$('#tval').textContent='GO!';$('#timer').classList.add('ring');navigator.vibrate?.([300,150,300,150,300]);beep();setTimeout(()=>{if(Date.now()>=T.end)stopTimer()},6000)}
+  if(left<=0){clearInterval(T.iv);if(Date.now()-T.end>3000)return stopTimer(); // rest ran out while the app was in the background
+    $('#tval').textContent='GO!';$('#timer').classList.add('ring');navigator.vibrate?.([300,150,300,150,300]);beep();setTimeout(()=>{if(Date.now()>=T.end)stopTimer()},1500)}
 }
 document.querySelector('#timer').addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(!b)return;if(b.dataset.t==='x')return stopTimer();T.end+=b.dataset.t*1e3;T.tot=Math.max(T.tot,(T.end-Date.now())/1e3);tick()});
 function tickClock(){const c=$('#clock');if(!c||!S.active)return;const m=Math.floor((Date.now()-S.active.start)/6e4);c.textContent=Math.floor(m/60)+':'+String(m%60).padStart(2,'0')}
